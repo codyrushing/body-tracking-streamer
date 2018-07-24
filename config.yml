@@ -1,0 +1,2 @@
+OPENPOSE_PATH = ~/Tools/openpose/
+OPENPOSE_BUILD_DIR = build
