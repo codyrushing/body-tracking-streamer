@@ -1,2 +1,4 @@
-OPENPOSE_PATH = ~/Tools/openpose/
-OPENPOSE_BUILD_DIR = build
+OPENPOSE_PATH: /home/cody/Tools/openpose
+OPENPOSE_BIN_PATH: ./build/examples/openpose/openpose.bin
+DATA_DIR: data/
+NET_RESOLUTION: 320x-1

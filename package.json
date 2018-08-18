@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/codyrushing/body-tracking-streamer/issues"
   },
-  "homepage": "https://github.com/codyrushing/body-tracking-streamer#readme"
+  "homepage": "https://github.com/codyrushing/body-tracking-streamer#readme",
+  "dependencies": {
+    "js-yaml": "^3.12.0"
+  }
 }
