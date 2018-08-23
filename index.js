@@ -1,16 +1,23 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const { watch } = require('fs');
+const fs = require('mz/fs')
 const { OPENPOSE_PATH, OPENPOSE_BIN_PATH, DATA_DIR, NET_RESOLUTION } = require('./config');
+
+const dataDirectoryPath = path.join(__dirname, DATA_DIR);
 
 const OP = spawn(
   OPENPOSE_BIN_PATH,
   [
     '--disable_multi_thread',
     '--net_resolution', NET_RESOLUTION,
-    '--camera', 1,
-    '--write_json', path.join(__dirname, DATA_DIR),
-    '--render_pose', 0,
-    '--display', 0
+    '--output_resolution', '320x-1',
+    '--keypoint_scale', 3,
+    '--render_threshold', 0.25,
+    // '--render_pose', 0
+    // '--camera', 1,
+    '--write_json', dataDirectoryPath,
+    // '--display', 0
   ],
   {
     cwd: OPENPOSE_PATH
@@ -20,3 +27,15 @@ const OP = spawn(
 OP.stdout.on('data', data => console.log(data.toString()));
 OP.stderr.on('data', data => console.error(data.toString()));
 OP.on('error', console.error);
+
+watch(
+  dataDirectoryPath,
+  (type, file) => {
+    const data = require( path.join(dataDirectoryPath, file) );
+    console.log(
+      data.people.map(
+        person => person.pose_keypoints_2d
+      )
+    );
+  }
+);
