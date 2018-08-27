@@ -5,7 +5,8 @@
   "description": "Stream real-time output from OpenPose",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "budo client/index.js --open --live"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,12 @@
   "homepage": "https://github.com/codyrushing/body-tracking-streamer#readme",
   "dependencies": {
     "js-yaml": "^3.12.0",
-    "mz": "^2.7.0"
+    "lodash": "^4.17.10",
+    "mz": "^2.7.0",
+    "vector2d": "^3.0.0",
+    "ws": "^6.0.0"
+  },
+  "devDependencies": {
+    "budo": "^11.3.2"
   }
 }
