@@ -1,6 +1,32 @@
-const ws = new WebSocket('ws://localhost:8080');
+import eventEmitter from './event-emitter';
+const socketHost = 'ws://localhost:8080';
 
-ws.onopen = () => console.log('connected');
-ws.onmessage = e => console.log(JSON.parse(e.data));
+var ws;
+const buildSocket = () => {
+  ws = new WebSocket(socketHost);
+  ws.addEventListener(
+    'open',
+    () => {
+      ws.addEventListener(
+        'message',
+        ({data}) => {
+          eventEmitter.emit('data', JSON.parse(data));
+        }
+      );
+    }
+  );
 
-export default ws;
+  ws.addEventListener(
+    'close',
+    () => {
+      setTimeout(
+        buildSocket,
+        1 * 1000
+      );
+    }
+  );
+
+  return ws;
+}
+
+export default buildSocket();
