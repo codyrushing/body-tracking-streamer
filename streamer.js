@@ -87,6 +87,7 @@ class OPDataTransformer extends Transform {
             .map(
               (keypoint, i) => {
                 const pose = [keypoint[0], keypoint[1]];
+                const found = pose.every( coord => coord !== 0);
                 const recentPoints = existing._prevFrames;
                 const prevPoint = recentPoints[0]
                   ? recentPoints[0][i]
@@ -107,16 +108,21 @@ class OPDataTransformer extends Transform {
                 return {
                   def: this.model[i],
                   pose,
-                  v: prevPoint
+                  found,
+                  v: prevPoint && found
                     ? new Vec2.Vector(...pose).subtract( new Vec2.Vector(...prevPoint.pose) ).toArray()
                     : [0, 0],
                   m: [
-                    wiggle(
-                      recentCorrespondingPoints.map(p => p.pose[0])
-                    ),
-                    wiggle(
-                      recentCorrespondingPoints.map(p => p.pose[1])
-                    )
+                    found
+                      ? wiggle(
+                        recentCorrespondingPoints.map(p => p.pose[0])
+                      )
+                      : 0,
+                    found
+                      ? wiggle(
+                        recentCorrespondingPoints.map(p => p.pose[1])
+                      )
+                      : 0
                   ]
                 };
               }

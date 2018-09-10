@@ -35,6 +35,8 @@ for (_i = 1; _i <= 2000; _i++) {
   particles.push({
     x: p1.x,
     y: p1.y,
+    // it seems like `a` is just to put it on the opposite side of a circle,
+    // oh right, so it makes two different opposing particle streams :)
     a: TAU / 2
   });
 }
@@ -44,11 +46,16 @@ draw = function() {
   _results = [];
   for (_j = 0, _len = particles.length; _j < _len; _j++) {
     p = particles[_j];
+    // `v` is not velocity, it's a noise value based on position
     v = noise.perlin2(p.x * period, p.y * period);
+    // hue is based on noise value
     ctx.fillStyle = "hsla(" + (Math.floor(v * 360)) + ", 95%, 20%, 0.05)";
     ctx.fillRect(p.x, p.y, 1.5, 1.5);
+    // `h` doesn't seem to be used for anything, coffeescript garbage?
     p.h++;
+    // multiply angle by noise
     a = v * 2 * Math.PI + p.a;
+    // angle basically becomes velocity vector
     p.x += Math.cos(a);
     _results.push(p.y += Math.sin(a));
   }

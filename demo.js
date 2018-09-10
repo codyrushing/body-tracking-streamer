@@ -21,6 +21,10 @@ const go = async function(){
       await wait(delay);
       file = fileIterator.next();
     }
+    if(file.done){
+      // restart
+      go();
+    }
   }
   catch(err){
     console.error(err);

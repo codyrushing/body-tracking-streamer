@@ -1,6 +1,10 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
+import Noise from 'noisejs';
+import Particle from './Particle';
+import Vector2d from './lib/vector';
 import eventEmitter from './event-emitter';
+import keypointParser from './keypoint-parser';
 
 var screenDimensions = [];
 var width, height;
@@ -9,9 +13,11 @@ var people = [];
 eventEmitter.on(
   'data',
   p => {
-    people = p;
+    people = p.map(keypointParser);
   }
 );
+
+const numParticles = 1;
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
@@ -31,7 +37,7 @@ function setDimensions(){
   canvas.setAttribute('height', height);
   hiddenCanvas.setAttribute('width', width);
   hiddenCanvas.setAttribute('height', height);
-  hiddenContext.globalAlpha = 0.5;
+  hiddenContext.globalAlpha = 0.2;
 }
 
 setDimensions();
@@ -44,6 +50,58 @@ window.addEventListener(
   )
 );
 
+const drawPeople = () => {
+  people.forEach(
+    person => {
+      person.segments.forEach(
+        segment => {
+          const [start, end] = segment.map(
+            s => s.pose_abs
+          );
+          context.save();
+          context.beginPath();
+          context.moveTo(...start);
+          context.lineTo(...end);
+          context.stroke();
+          context.restore();
+        }
+      )
+      // person.keypoints.forEach(
+      //   keypoint => {
+      //     if(keypoint.def === 'Background'){
+      //       return;
+      //     }
+      //     const [ x, y ] = keypoint.pose;
+      //     context.beginPath();
+      //     context.fillStyle = 'red';
+      //     context.arc(x * width, y * height, 5, 0, 2 * Math.PI);
+      //     context.fill();
+      //     context.strokeStyle = 'black';
+      //     context.stroke();
+      //   }
+      // );
+    }
+  );
+};
+
+//
+const particles = [];
+d3.range(numParticles).forEach(
+  () => {
+    particles.push(
+      new Particle({
+        position: new Vector2d(
+          Math.random() * width,
+          Math.random() * height
+        ),
+        velocity: new Vector2d(
+          Math.random() * 2 - 1,
+          Math.random() * 2 - 1
+        ).mulS(3)
+      })
+    );
+  }
+);
 
 d3.timer(
   t => {
@@ -52,23 +110,16 @@ d3.timer(
     context.clearRect(0, 0, width, height);
     context.drawImage(hiddenCanvas, 0, 0, width, height);
 
-    people.forEach(
-      person => {
-        person.forEach(
-          keypoint => {
-            if(keypoint.def === 'Background'){
-              return;
-            }
-            const [ x, y ] = keypoint.pose;
-            context.beginPath();
-            context.fillStyle = 'red';
-            context.arc(x * width, y * height, 5, 0, 2 * Math.PI);
-            context.fill();
-            context.strokeStyle = 'black';
-            context.stroke();
-          }
-        );
+    drawPeople();
+
+    particles.forEach(
+      p => {
+        p.update(people, t);
       }
     );
+
   }
 )
+
+export const getScreenDimensions = () => [width, height];
+export const ctx = context;

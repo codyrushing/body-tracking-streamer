@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "budo client/index.js --open --live -- -t babelify"
+    "dev": "budo client/index.js --open --live -- -t babelify",
+    "test": "budo client/test.js --open --live -- -t babelify"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,7 @@
     "lodash": "^4.17.10",
     "mitt": "^1.1.3",
     "mz": "^2.7.0",
-    "vector2d": "^3.0.0",
+    "noisejs": "^2.1.0",
     "ws": "^6.0.0"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babelify": "^8.0.0",
-    "budo": "^11.3.2"
+    "budo": "^11.3.2",
+    "vector2d": "^3.0.0"
   }
 }
