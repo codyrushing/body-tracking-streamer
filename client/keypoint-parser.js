@@ -1,3 +1,4 @@
+import Vector2d from './lib/vector';
 import { getScreenDimensions } from './scene';
 
 const segmentPairs = [
@@ -44,22 +45,47 @@ export default function(keypoints){
       segment => segment
     )
     .map(
-      segment => segment.map(
-        s => {
-          return {
-            ...s,
-            pose_abs: [
-              s.pose[0] * width,
-              s.pose[1] * height
-            ]
-          };
-        }
-      )
+      segment => {
+        const points = segment.map(
+          segmentPoint => {
+            return {
+              ...segmentPoint,
+              pose_v: new Vector2d(
+                segmentPoint.pose[0] * width,
+                segmentPoint.pose[1] * height
+              )
+            };
+          }
+        );
+        const p0 = points[0].pose_v;
+        const p1 = points[1].pose_v;
+        const midpoint = p0.clone().add(p1.clone().subtract(p0).mulS(0.5));
+        return {
+          points,
+          midpoint
+        };
+      }
+    )
+    .sort(
+      (a, b) => a.midpoint.length() - b.midpoint.length()
     );
+
+  const torsoPoints = [2, 5, 12, 9].map(
+    index => {
+      const keypoint = keypoints[index];
+      return new Vector2d(
+        keypoint.pose[0] * width,
+        keypoint.pose[1] * height
+      );
+    }
+  );
 
   return {
     keypoints,
     segments,
-    center: keypoints[8]
+    center: keypoints[8],
+    torso: torsoPoints.every(p => p.x !== 0 && p.y !== 0)
+      ? torsoPoints
+      : null
   };
 }

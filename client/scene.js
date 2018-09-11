@@ -17,7 +17,7 @@ eventEmitter.on(
   }
 );
 
-const numParticles = 1;
+const numParticles = 3500;
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
@@ -37,7 +37,7 @@ function setDimensions(){
   canvas.setAttribute('height', height);
   hiddenCanvas.setAttribute('width', width);
   hiddenCanvas.setAttribute('height', height);
-  hiddenContext.globalAlpha = 0.2;
+  hiddenContext.globalAlpha = 0.75;
 }
 
 setDimensions();
@@ -55,15 +55,15 @@ const drawPeople = () => {
     person => {
       person.segments.forEach(
         segment => {
-          const [start, end] = segment.map(
-            s => s.pose_abs
+          const [start, end] = segment.points.map(
+            s => s.pose_v
           );
-          context.save();
-          context.beginPath();
-          context.moveTo(...start);
-          context.lineTo(...end);
-          context.stroke();
-          context.restore();
+          // context.save();
+          // context.beginPath();
+          // context.moveTo(...start.toArray());
+          // context.lineTo(...end.toArray());
+          // context.stroke();
+          // context.restore();
         }
       )
       // person.keypoints.forEach(
@@ -97,7 +97,7 @@ d3.range(numParticles).forEach(
         velocity: new Vector2d(
           Math.random() * 2 - 1,
           Math.random() * 2 - 1
-        ).mulS(3)
+        ).mulS(10)
       })
     );
   }
