@@ -1,12 +1,43 @@
+import * as d3 from 'd3';
 import { Noise } from 'noisejs';
 import Vector2d from './lib/vector';
 import { pointIsPerpendicularToSegment, distanceFromSegment, pointInsidePolygon } from './lib/geometry';
-import { getScreenDimensions, ctx } from './scene';
+import { getScreenDimensions, ctx, bgCtx } from './scene';
 
 const noise = new Noise(Math.random());
 const period = 1/10;
 const msPeriod = 1/10000;
 const maxSpeed = 12.5;
+
+const sizeScale = d3.scaleLinear()
+  .domain([50, 0])
+  .range([1, 6])
+  .clamp(true);
+
+const hueScale = d3.scaleLinear()
+  .domain([0.4, 0.9])
+  .range([240, 160])
+  .clamp(true);
+
+const lightnessScale = d3.scaleLinear()
+  .domain([0, 0.35])
+  .range([25, 50])
+  .clamp(true);
+
+const generateNoiseValue = function(point){
+  const period = 1/1000;
+  const msPeriod = 1/1000;
+  const dimensions = getScreenDimensions();
+  return noise.simplex2(
+    ...point.position.toArray()
+      .map(
+        (v, i) => {
+          return (Math.abs(dimensions[i]/2 - v)) * period + point.t * msPeriod
+        }
+      )
+  );
+};
+
 
 export default class Particle {
   constructor(params={}){
@@ -15,7 +46,7 @@ export default class Particle {
     this.velocity = new Vector2d(0,0);
     this.noiseValue = 0;
     this._interactingSegments = 0;
-    this._personIndex = null;
+    this._person = null;
     Object.keys(params).forEach(
       k => {
         this[k] = params[k];
@@ -42,15 +73,7 @@ export default class Particle {
   }
   getAcceleration(people){
     return this.getWindForce()
-      .mulS(5);
-
-    // people.forEach(
-    //   person => {
-    //     person.forEach(
-    //       keypoint =>
-    //     )
-    //   }
-    // )
+      .mulS(0.5);
   }
 
   checkBodyProximity(people){
@@ -60,12 +83,14 @@ export default class Particle {
     people.forEach(
       (person, personIndex) => {
         // if the point is already proximal to a person, we can exit
-        if(this._personIndex !== null){
+        if(this._person){
           return;
         }
         const setProximalPersonState = (distance=0) => {
-          this._proximalDistance = 0;
-          this._personIndex = personIndex;
+          if(this._proximalDistance === null || distance < this._proximalDistance){
+            this._proximalDistance = distance;
+          }
+          this._person = person;
         };
         if(
           person.torso && pointInsidePolygon(
@@ -91,7 +116,7 @@ export default class Particle {
           )
           .map(
             segment => {
-              let threshold = 25;
+              let threshold = 20;
               const params = {
                 p: this.position,
                 segment: segment.points.map(sp => sp.pose_v)
@@ -118,20 +143,6 @@ export default class Particle {
       Math.sin(a)
     );
   }
-  generateNoiseValue(){
-    const period = 1/50000;
-    const msPeriod = 1/10000;
-    const dimensions = getScreenDimensions();
-
-    this.noiseValue = noise.simplex2(
-      ...this.position.toArray()
-        .map(
-          (v, i) => {
-            return (Math.abs(dimensions[i]/2 - v)) * period + this.t * msPeriod
-          }
-        )
-    );
-  }
   // generateNoiseValue(){
   //   const dimensions = getScreenDimensions();
   //   this.noiseValue = noise.perlin2(
@@ -145,7 +156,7 @@ export default class Particle {
   // }
   update(people=[], t=0){
     this.t = t;
-    this.generateNoiseValue();
+    this.noiseValue = generateNoiseValue(this);
     this.checkBodyProximity(people);
     this.velocity.add(this.getAcceleration(people)).constrain(maxSpeed);
     this.position.add(this.velocity);
@@ -156,15 +167,34 @@ export default class Particle {
   reset(){
     this._isPersonProximal = false;
     this._interactingSegments = 0;
-    this._personIndex = null;
+    this._person = null;
+    this._proximalDistance = null;
   }
-  draw(){
+  draw(t){
     const [ width ] = getScreenDimensions();
+    if(!this._person){
+      // non proximal point
+      bgCtx.beginPath();
+      bgCtx.fillStyle = '#555';
+      bgCtx.arc(
+        ...this.position.toArray(),
+        3,
+        0,
+        Math.PI * 2
+      );
+      bgCtx.fill();
+      return;
+    }
+    const hue = hueScale(this._person.verticalDisplacement);
+    const lightness = lightnessScale(this._person.horizontalDisplacement);
+    ctx.fillStyle = `hsl(${(hue + this.t * 1/100) % 360}, 95%, ${lightness}%)`;
     ctx.beginPath();
-    ctx.fillStyle = this._personIndex !== null
-      ? 'red'
-      : 'black';
-    ctx.arc(this.position.x, this.position.y, 5, 0, Math.PI * 2);
+    ctx.arc(
+      ...this.position.toArray(),
+      sizeScale(this._proximalDistance),
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
   }
 }

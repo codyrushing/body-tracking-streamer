@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "budo client/test.js --open --live -- -t babelify",
-    "dev": "budo client/index.js --open --live -- -t babelify"
+    "dev": "budo client/index.js --open --live --css=dist/index.css -- -t babelify",
+    "css": "lessc client/styles/index.less dist/index.css"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,8 @@
     "babel-preset-env": "^1.7.0",
     "babelify": "^8.0.0",
     "budo": "^11.3.2",
+    "less": "^3.8.1",
+    "normalize.css": "^8.0.0",
     "vector2d": "^3.0.0"
   }
 }

@@ -87,7 +87,7 @@ class OPDataTransformer extends Transform {
             .map(
               (keypoint, i) => {
                 const pose = [keypoint[0], keypoint[1]];
-                const found = pose.every( coord => coord !== 0);
+                const found = !pose.every(coord => coord === 0);
                 const recentPoints = existing._prevFrames;
                 const prevPoint = recentPoints[0]
                   ? recentPoints[0][i]

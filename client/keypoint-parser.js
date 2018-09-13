@@ -73,18 +73,72 @@ export default function(keypoints){
   const torsoPoints = [2, 5, 12, 9].map(
     index => {
       const keypoint = keypoints[index];
-      return new Vector2d(
-        keypoint.pose[0] * width,
-        keypoint.pose[1] * height
-      );
+      if(keypoint.found){
+        return new Vector2d(
+          keypoint.pose[0] * width,
+          keypoint.pose[1] * height
+        );
+      }
     }
-  );
+  )
+  .filter(p => p);
+
+  const center = keypoints[8];
+  const pointsSortedVertically = keypoints
+    .filter(p => p.found)
+    .sort(
+      (a, b) => a.pose[1] - b.pose[1]
+    );
+
+  const pointsSortedHorizontally = keypoints
+    .filter(p => p.found)
+    .sort(
+      (a, b) => a.pose[0] - b.pose[0]
+    );
+
+  const highest = pointsSortedVertically[0];
+  const lowest = pointsSortedVertically[pointsSortedVertically.length-1];
+  const leftMost = pointsSortedHorizontally[0];
+  const rightMost = pointsSortedHorizontally[pointsSortedHorizontally.length-1];
+
+  const verticalDisplacement = Math.abs(lowest.pose[1] - highest.pose[1]);
+  const horizontalDisplacement = Math.abs(rightMost.pose[1] - leftMost.pose[1]);
+
+  const wrists = [keypoints[4], keypoints[7]].filter(p => p.found);
+  const armDisplacementFromCenter = center.found && wrists.length
+      ? wrists
+        .reduce(
+          (acc, v) => {
+            const comparison = center.found
+              ? center
+              : (v.def.charAt(0) === 'l')
+                ? keyoints[12]
+                : keypoints[9]
+            if(!comparison){
+              return acc;
+            }
+            return acc + new Vector2d(...v.pose).subtract(new Vector2d(...comparison.pose)).length();
+          },
+          0
+        ) / wrists.length
+      : 0.2;
+
+  console.log(verticalDisplacement/horizontalDisplacement);
 
   return {
     keypoints,
     segments,
-    center: keypoints[8],
-    torso: torsoPoints.every(p => p.x !== 0 && p.y !== 0)
+    highest,
+    lowest,
+    verticalDisplacement,
+    horizontalDisplacement,
+    boundingProfile: verticalDisplacement/horizontalDisplacement,
+    armDisplacementFromCenter,
+    center,
+    centerSpeed: center.found
+      ? new Vector2d(...center.v).length()
+      : 0.1,
+    torso: torsoPoints.length === 4
       ? torsoPoints
       : null
   };

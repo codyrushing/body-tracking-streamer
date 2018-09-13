@@ -19,25 +19,30 @@ eventEmitter.on(
 
 const numParticles = 3500;
 
+const backgroundCanvas = document.createElement('canvas');
+const backgroundContext = backgroundCanvas.getContext('2d');
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
 const hiddenCanvas = document.createElement('canvas');
 const hiddenContext = hiddenCanvas.getContext('2d');
 hiddenCanvas.style.display = 'none';
 
-document.body.appendChild(canvas);
 document.body.appendChild(hiddenCanvas);
+document.body.appendChild(backgroundCanvas);
+document.body.appendChild(canvas);
 
 function setDimensions(){
   [width, height] = screenDimensions = [
     window.innerWidth,
     window.innerHeight
   ];
+  backgroundCanvas.setAttribute('width', width);
+  backgroundCanvas.setAttribute('height', height);
   canvas.setAttribute('width', width);
   canvas.setAttribute('height', height);
   hiddenCanvas.setAttribute('width', width);
   hiddenCanvas.setAttribute('height', height);
-  hiddenContext.globalAlpha = 0.75;
+  hiddenContext.globalAlpha = 0.8;
 }
 
 setDimensions();
@@ -109,6 +114,7 @@ d3.timer(
     hiddenContext.drawImage(canvas, 0, 0, width, height);
     context.clearRect(0, 0, width, height);
     context.drawImage(hiddenCanvas, 0, 0, width, height);
+    backgroundContext.clearRect(0, 0, width, height);
 
     drawPeople();
 
@@ -123,3 +129,4 @@ d3.timer(
 
 export const getScreenDimensions = () => [width, height];
 export const ctx = context;
+export const bgCtx = backgroundContext

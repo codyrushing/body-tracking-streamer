@@ -13,7 +13,7 @@ const OP = spawn(
     '--net_resolution', NET_RESOLUTION,
     '--output_resolution', '320x-1',
     '--keypoint_scale', 3,
-    '--render_threshold', 0.25,
+    '--render_threshold', 0.05,
     // '--render_pose', 0
     // '--camera', 1,
     '--write_json', dataDirectoryPath,
@@ -31,11 +31,6 @@ OP.on('error', console.error);
 watch(
   dataDirectoryPath,
   (type, file) => {
-    const data = require( path.join(dataDirectoryPath, file) );
-    console.log(
-      data.people.map(
-        person => person.pose_keypoints_2d
-      )
-    );
+    streamer.write(path.join( dataDirectoryPath, file.value));
   }
 );
