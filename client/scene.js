@@ -17,7 +17,7 @@ eventEmitter.on(
   }
 );
 
-const numParticles = 3500;
+const numParticles = 5000;
 
 const backgroundCanvas = document.createElement('canvas');
 const backgroundContext = backgroundCanvas.getContext('2d');
@@ -42,7 +42,7 @@ function setDimensions(){
   canvas.setAttribute('height', height);
   hiddenCanvas.setAttribute('width', width);
   hiddenCanvas.setAttribute('height', height);
-  hiddenContext.globalAlpha = 0.8;
+  hiddenContext.globalAlpha = 0.9;
 }
 
 setDimensions();
