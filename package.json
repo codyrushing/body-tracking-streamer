@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "budo client/test.js --open --live -- -t babelify",
-    "dev": "budo client/index.js --open --live --css=dist/index.css -- -t babelify",
+    "dev": "budo client/index.js --open --css=dist/index.css -- -t babelify",
     "css": "lessc client/styles/index.less dist/index.css"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "mz": "^2.7.0",
     "noisejs": "^2.1.0",
     "point-in-polygon": "^1.0.1",
+    "rimraf": "^2.6.2",
     "ws": "^6.0.0"
   },
   "devDependencies": {

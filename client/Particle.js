@@ -8,20 +8,21 @@ const noise = new Noise(Math.random());
 const period = 1/10;
 const msPeriod = 1/10000;
 const maxSpeed = 12.5;
+const proximityThreshold = 30;
 
 const sizeScale = d3.scaleLinear()
-  .domain([50, 0])
+  .domain([proximityThreshold, 0])
   .range([1, 6])
   .clamp(true);
 
 const hueScale = d3.scaleLinear()
-  .domain([0.4, 0.9])
-  .range([240, 160])
+  .domain([0, 16/9])
+  .range([100, 300])
   .clamp(true);
 
 const lightnessScale = d3.scaleLinear()
-  .domain([0, 0.35])
-  .range([25, 50])
+  .range([5, 70])
+  .domain([0.9, 0.1])
   .clamp(true);
 
 const generateNoiseValue = function(point){
@@ -116,7 +117,6 @@ export default class Particle {
           )
           .map(
             segment => {
-              let threshold = 20;
               const params = {
                 p: this.position,
                 segment: segment.points.map(sp => sp.pose_v)
@@ -124,7 +124,7 @@ export default class Particle {
               //
               if(pointIsPerpendicularToSegment(params)){
                 let distance = distanceFromSegment(params)
-                if(distance < threshold){
+                if(distance < proximityThreshold){
                   setProximalPersonState(distance);
                   this._interactingSegments++;
                 }
@@ -178,16 +178,18 @@ export default class Particle {
       bgCtx.fillStyle = '#555';
       bgCtx.arc(
         ...this.position.toArray(),
-        3,
+        1.5,
         0,
         Math.PI * 2
       );
       bgCtx.fill();
       return;
     }
-    const hue = hueScale(this._person.verticalDisplacement);
-    const lightness = lightnessScale(this._person.horizontalDisplacement);
-    ctx.fillStyle = `hsl(${(hue + this.t * 1/100) % 360}, 95%, ${lightness}%)`;
+    const hue = hueScale(Math.max(this._person.verticalDisplacement, this._person.horizontalDisplacement * 2))
+      // shift hue slightly based on x position, so dancers next to each other have a slight difference
+      + ((this._person.centerPoint.x % 0.5) - 0.5) * 30;
+    const lightness = lightnessScale(this._person.centerPoint.y);
+    ctx.fillStyle = `hsla(${hue}, 95%, ${lightness}%, 0.8)`;
     ctx.beginPath();
     ctx.arc(
       ...this.position.toArray(),

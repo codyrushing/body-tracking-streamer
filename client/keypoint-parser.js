@@ -102,28 +102,18 @@ export default function(keypoints){
   const rightMost = pointsSortedHorizontally[pointsSortedHorizontally.length-1];
 
   const verticalDisplacement = Math.abs(lowest.pose[1] - highest.pose[1]);
-  const horizontalDisplacement = Math.abs(rightMost.pose[1] - leftMost.pose[1]);
+  const horizontalDisplacement = Math.abs(rightMost.pose[0] - leftMost.pose[0]) * 16/9;
 
   const wrists = [keypoints[4], keypoints[7]].filter(p => p.found);
-  const armDisplacementFromCenter = center.found && wrists.length
-      ? wrists
-        .reduce(
-          (acc, v) => {
-            const comparison = center.found
-              ? center
-              : (v.def.charAt(0) === 'l')
-                ? keyoints[12]
-                : keypoints[9]
-            if(!comparison){
-              return acc;
-            }
-            return acc + new Vector2d(...v.pose).subtract(new Vector2d(...comparison.pose)).length();
-          },
-          0
-        ) / wrists.length
-      : 0.2;
 
-  console.log(verticalDisplacement/horizontalDisplacement);
+  const centerPoint = center
+    ? new Vector2d(...center.pose)
+    : new Vector2d([
+      (rightMost.pose[0] + leftMost.pose[0])/2,
+      (lowest.pose[1] + highest.pose[1])/2
+    ]);
+
+  const boundingProfile = verticalDisplacement/horizontalDisplacement;
 
   return {
     keypoints,
@@ -132,12 +122,9 @@ export default function(keypoints){
     lowest,
     verticalDisplacement,
     horizontalDisplacement,
-    boundingProfile: verticalDisplacement/horizontalDisplacement,
-    armDisplacementFromCenter,
+    boundingProfile,
     center,
-    centerSpeed: center.found
-      ? new Vector2d(...center.v).length()
-      : 0.1,
+    centerPoint,
     torso: torsoPoints.length === 4
       ? torsoPoints
       : null
