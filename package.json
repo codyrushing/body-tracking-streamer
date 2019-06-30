@@ -36,7 +36,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babelify": "^8.0.0",
-    "budo": "^11.3.2",
     "less": "^3.8.1",
     "normalize.css": "^8.0.0",
     "vector2d": "^3.0.0"

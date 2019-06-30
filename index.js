@@ -1,4 +1,5 @@
 const VideoReader = require('./lib/video-reader');
+const { manageProcess } = require('./lib/util');
 
 (async function(){
   const videoReader = new VideoReader({
@@ -6,6 +7,17 @@ const VideoReader = require('./lib/video-reader');
   });
 
   await videoReader.decode();
+
+  manageProcess(
+    process,
+    {
+      cleanup: () => {
+        if(videoReader){
+          videoReader.destroy();
+        };
+      }
+    }
+  );
 
   if(videoReader.frameStream){
     videoReader.frameStream
