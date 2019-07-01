@@ -1,4 +1,5 @@
 const VideoReader = require('./lib/video-reader');
+const ImageProcessor = require('./lib/image-processor');
 const { manageProcess } = require('./lib/util');
 
 (async function(){
@@ -7,6 +8,14 @@ const { manageProcess } = require('./lib/util');
   });
 
   await videoReader.decode();
+
+  videoReader
+    .pipe(
+      new ImageProcessor({
+        objectMode: true,
+        highWaterMark: 1
+      })
+    );
 
   manageProcess(
     process,
@@ -18,13 +27,5 @@ const { manageProcess } = require('./lib/util');
       }
     }
   );
-
-  if(videoReader.frameStream){
-    videoReader.frameStream
-      .on(
-        'data',
-        console.log
-      );
-  }
 
 })();
