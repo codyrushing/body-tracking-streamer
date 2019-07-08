@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Stream real-time output from OpenPose",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "budo client/test.js --open --live -- -t babelify",
-    "dev": "budo client/index.js --open --css=dist/index.css -- -t babelify",
-    "css": "lessc client/styles/index.less dist/index.css"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -20,8 +19,10 @@
   },
   "homepage": "https://github.com/codyrushing/body-tracking-streamer#readme",
   "dependencies": {
-    "@tensorflow-models/posenet": "^2.1.0",
+    "@tensorflow-models/body-pix": "^1.1.1",
+    "@tensorflow-models/posenet": "^2.1.1",
     "@tensorflow/tfjs-node": "^1.2.3",
+    "@tensorflow/tfjs-node-gpu": "^1.2.3",
     "d3": "^5.7.0",
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
