@@ -18,9 +18,9 @@ module.exports = async function(){
       new Transform({
         objectMode: true,
         transform: (poses, encoding, done) => {
-          console.log(
-            poses.map(pose => pose.keypoints.map(k => k.position))
-          );
+          // console.log(
+          //   poses.map(pose => pose.keypoints.map(k => k.position))
+          // );
           done();
         }
       })
